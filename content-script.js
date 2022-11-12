@@ -34,7 +34,13 @@
 
         if(selector.maxrepeats > 0){
             selector.maxrepeats--;
+			log('debug', 'Repetitions left: ' + selector.maxrepeats);
         }
+
+        const minskip = (selector.skipelements - selector.skipelementsvariance);
+        const maxskip = (selector.skipelements + selector.skipelementsvariance);
+        const toskip = ((maxskip - minskip) > 0) ? getRandomInt(minskip, maxskip) : selector.skipelements;
+
 
         if(selector.xclickpos > 0 || selector.yclickpos > 0) {
             const elem = document.elementFromPoint(selector.xclickpos, selector.yclickpos);
@@ -45,27 +51,42 @@
                 log('warn','item by coordinates has no click function');
             }
         }else {
+			var iteration = 0;
             for(const item of document.querySelectorAll(selector.cssselector)) {
                 if(item) {
                     if( typeof item.click === 'function') {
-                        item.click(); // click item
-                        log('debug', 'item by selector clicked');
+                        if(iteration >= toskip) {						
+							item.click(); // click item
+							log('debug', 'item by selector clicked. Iteration: ' + iteration);
+							if(selector.stopAtFirstElement !== false) { // only first element and then break
+								log('debug', 'Stop at first element found');
+								break;
+							} 
+						}
+						else
+						{
+							log('debug', 'Skip item iteration ' + iteration);
+						}
+						iteration++;
                     }else{
                         log('warn','item by selector has no click function');
                     }
-                }
+				}
             }
         }
-
+		log('debug', 'Item parsing finished. Checking for repetitions...');
         if(selector.repeatdelay > 0) {
             const min = (selector.repeatdelay - selector.randomrepeatvariance);
             const max = (selector.repeatdelay + selector.randomrepeatvariance);
             const tovalue = ((max - min) > 0) ? getRandomInt(min, max) : selector.repeatdelay;
-            log('debug','waitTime: ' + tovalue);
+            log('debug','> waitTime: ' + tovalue);
             setTimeout(function() {
                 waitFor(selector);
             },tovalue);
         }
+		else{
+			log('debug', '> No more repeats');
+		}
     } // waitFor end
 
 	log( 'debug', 'temporary: ' + temporary);
@@ -88,6 +109,7 @@
 
     store.selectors.forEach( (selector) => {
 
+		log('debug', 'Checking Palex Click on: ' + window.location.href);
         // check enabled
         if(typeof selector.enabled !== 'boolean') { return; }
         if(selector.enabled !== true) { return; }
@@ -99,7 +121,7 @@
 
         if(!(new RegExp(selector.urlregex)).test(window.location.href)){ return; }
 
-        log('debug', window.location.href);
+        //log('debug', window.location.href);
 
         //if ( typeof selector.cssselector !== 'string' ) { return; }
         //if ( selector.cssselector === '' && selector.xclickpos === 0 && selector.yclickpos === 0) { return; }

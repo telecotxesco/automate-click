@@ -39,6 +39,8 @@ tgladv.addEventListener('click', async function (evt) {
     //table.toggleColumn('annotation');
     table.toggleColumn('repeatdelay');
     table.toggleColumn('maxrepeats');
+	table.toggleColumn('skipelements');
+	table.toggleColumn('skipelementsvariance');
     table.toggleColumn('randomrepeatvariance');
     table.toggleColumn('xclickpos');
     table.toggleColumn('yclickpos');
@@ -56,6 +58,9 @@ function addNewRowWithData(regex) {
         initaldelay: 1000,
         repeatdelay: 0,
         maxrepeats: 0,
+		stopAtFirstElement: true,
+		skipelements: 0,
+		skipelementsvariance: 0,
         randomrepeatvariance: 0,
         urlregex: regex,
         xclickpos: 0,
@@ -75,6 +80,9 @@ addbtn.addEventListener('click', async function (evt) {
         initaldelay: 1000,
         repeatdelay: 0,
         maxrepeats: 0,
+		stopAtFirstElement: true,
+		skipelements: 0,
+		skipelementsvariance: 0,
         randomrepeatvariance: 0,
         urlregex: '',
         xclickpos: 0,
@@ -125,6 +133,8 @@ savbtn.addEventListener('click', (evt)=> {
         data[i].initaldelay = parseInt(data[i].initaldelay);
         data[i].repeatdelay = parseInt(data[i].repeatdelay);
         data[i].maxrepeats = parseInt(data[i].maxrepeats);
+        data[i].skipelements = parseInt(data[i].skipelements);
+        data[i].skipelementsvariance = parseInt(data[i].skipelementsvariance);
         data[i].xclickpos = parseInt(data[i].xclickpos);
         data[i].yclickpos = parseInt(data[i].yclickpos);
         data[i].randomrepeatvariance= parseInt(data[i].randomrepeatvariance);
@@ -154,6 +164,8 @@ expbtn.addEventListener('click', async function (evt) {
         rowData.initaldelay = parseInt(rowData.initaldelay);
         rowData.repeatdelay = parseInt(rowData.repeatdelay);
         rowData.maxrepeats = parseInt(rowData.maxrepeats);
+        rowData.skipelements = parseInt(rowData.skipelements);
+        rowData.skipelementsvariance = parseInt(rowData.skipelementsvariance);
         rowData.randomrepeatvariance= parseInt(rowData.randomrepeatvariance);
         rowData.idx = idx_count;
         expData.push(rowData);
@@ -194,6 +206,9 @@ impbtn.addEventListener('input', function (evt) {
                         initaldelay: parseInt(selector.delay || selector.initaldelay || 1000),
                         repeatdelay: parseInt(selector.repeat || selector.repeatdelay || 0),
                         maxrepeats: parseInt(selector.maxrepeats || 0),
+						stopAtFirstElement: selector.activ || selector.stopAtFirstElement || false,
+						skipelements: parseInt(selector.skipelements || 0),
+						skipelementsvariance: parseInt(selector.skipelementsvariance || 0),
                         randomrepeatvariance: parseInt(selector.rvariance || selector.randomrepeatvariance || 0),
                         urlregex: selector.url_regex || selector.urlregex || '',
                         xclickpos: 0,
@@ -265,7 +280,14 @@ async function onDOMContentLoaded() {
             {title:"Max <br/>Repeats", width: 80, field:"maxrepeats", sorter:"number", editor:"input", headerSort: false, validator: ['required','min:0', 'integer']
                 ,visible : false
             },
-            {title:'<acronym title="Random Repeat Variance" style="text-decoration-style:dashed;">RRV</acronym>', headerSort: false, width: 80, field:"randomrepeatvariance", sorter:"number", editor:"input", validator: ['required','min:0', 'integer']
+			{title:"Stop at<br/>First", width: 100, field:"stopAtFirstElement", formatter: "tickCross", sorter:"boolean", headerHozAlign: "center",  hozAlign:"center", editor:true, editorParams: { tristate:false}},
+            {title:"Skip<br/>Elements", width: 80, field:"skipelements", sorter:"number", editor:"input", headerSort: false, validator: ['required','min:0', 'integer']
+                ,visible : false
+            },            
+			{title:'<acronym title="Random Skip Elements Variance" style="text-decoration-style:dashed;">RSEV</acronym>', width: 80, field:"skipelementsvariance", sorter:"number", editor:"input", headerSort: false, validator: ['required','min:0', 'integer']
+                ,visible : false
+            },
+			{title:'<acronym title="Random Repeat Variance" style="text-decoration-style:dashed;">RRV</acronym>', headerSort: false, width: 80, field:"randomrepeatvariance", sorter:"number", editor:"input", validator: ['required','min:0', 'integer']
                 ,visible : false
             },
             {title:"X-Click<br/>Position", width: 80, field:"xclickpos", sorter:"number", editor:"input", headerSort: false, validator: ['required','min:0', 'integer']
@@ -375,6 +397,9 @@ async function getTblData() {
                 initaldelay: selector.delay || selector.initaldelay || 1000,
                 repeatdelay: selector.repeat || selector.repeatdelay || 0,
                 maxrepeats: selector.maxrepeats || 0,
+				stopAtFirstElement: selector.activ || selector.stopAtFirstElement || false,
+				skipelements: selector.skipelements || 0,
+				skipelementsvariance: selector.skipelementsvariance || 0,
                 randomrepeatvariance: parseInt(selector.rvariance || selector.randomrepeatvariance || 0),
                 urlregex: selector.url_regex || selector.urlregex || '',
                 xclickpos: selector.xclickpos|| 0,
